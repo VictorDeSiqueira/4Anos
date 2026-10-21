@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quer namorar comigo?</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    screens: {
+                        'xs': '380px'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 50%, #ffb3c1 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .font-romantic {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Continuous Floating Hearts Background */
+        .heart-bg {
+            position: fixed;
+            top: -10vh;
+            color: rgba(239, 68, 68, 0.4);
+            animation: fall linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.15);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff0f3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f43f5e;
+            border-radius: 4px;
+        }
+
+        /* Evasive "Não" button positioning smooth step */
+        #btn-nao {
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 50;
+            touch-action: none;
+        }
+
+        /* Carousel animation smooth scroll */
+        .carousel-track {
+            transition: transform 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col justify-between relative selection:bg-rose-200 min-h-screen">
+
+    <!-- Background Animated Hearts Container -->
+    <div id="hearts-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <!-- Audio Local Element (Oculto) -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="Justin Timberlake - Mirrors (Lyrics)(MP3_160K).mp3" type="audio/mpeg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+    <!-- MAIN CONTAINER -->
+    <main class="relative z-10 min-h-screen flex items-center justify-center p-3 sm:p-6">
+
+        <!-- ============================================================
+             1. PRIMEIRA TELA: O PEDIDO
+             ============================================================ -->
+        <section id="screen-pedido" class="w-full max-w-lg transition-opacity duration-700 opacity-100 flex flex-col items-center justify-center text-center my-auto">
+            <div class="glass-card rounded-3xl p-6 sm:p-12 w-full flex flex-col items-center shadow-2xl relative border-2 border-rose-100">
+                <!-- Floating Heart Icon Top -->
+                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl sm:text-4xl mb-4 sm:mb-6 shadow-inner animate-bounce">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+
+                <h1 class="font-romantic text-4xl xs:text-5xl sm:text-6xl font-bold text-rose-600 mb-4 sm:mb-6 drop-shadow-sm leading-tight">
+                    Quer namorar comigo?
+                </h1>
+                
+                <p class="text-gray-600 mb-6 sm:mb-10 text-xs xs:text-sm sm:text-base font-medium px-2">
+                    Tenho uma pergunta muito especial para você... ❤️
+                </p>
+
+                <!-- Action Buttons Container -->
+                <div id="buttons-wrapper" class="relative w-full h-28 sm:h-32 flex items-center justify-center gap-4 sm:gap-6">
+                    <!-- Button SIM -->
+                    <button id="btn-sim" onclick="goToSecondScreen()" class="px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-lg sm:text-xl rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer z-20">
+                        <i class="fa-solid fa-check"></i> Sim!
+                    </button>
+
+                    <!-- Button NÃO (Fujão) -->
+                    <button id="btn-nao" onmouseover="fugirBotao()" onclick="fugirBotao()" ontouchstart="fugirBotao(event)" class="px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-lg sm:text-xl rounded-full shadow-md cursor-pointer flex items-center gap-2 select-none">
+                        <i class="fa-solid fa-xmark"></i> Não
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============================================================
+             2. SEGUNDA TELA: NOSSA HISTÓRIA
+             ============================================================ -->
+        <section id="screen-historia" class="w-full max-w-4xl transition-all duration-700 opacity-0 hidden flex-col items-center my-4 sm:my-8">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-4 xs:p-6 sm:p-10 w-full shadow-2xl border-2 border-rose-100 flex flex-col items-center">
+                
+                <!-- Top Title Centralized -->
+                <div class="text-center mb-6 sm:mb-8 px-2">
+                    <div class="inline-block p-2.5 sm:p-3 bg-rose-100 text-rose-500 rounded-full mb-2 sm:mb-3">
+                        <i class="fa-solid fa-sparkles text-xl sm:text-2xl"></i>
+                    </div>
+                    <h1 class="font-romantic text-3xl xs:text-4xl sm:text-6xl font-bold text-rose-600 leading-tight">
+                        Foi assim que começou nossa história
+                    </h1>
+                    <div class="w-24 sm:w-32 h-1 bg-gradient-to-r from-transparent via-rose-400 to-transparent mx-auto mt-2 sm:mt-3 rounded-full"></div>
+                </div>
+
+                <!-- CARROSSEL DE FOTOS (10 Imagens) -->
+                <div class="relative w-full max-w-2xl overflow-hidden rounded-xl sm:rounded-2xl shadow-xl bg-rose-50 border-2 sm:border-4 border-white mb-6 sm:mb-8 group">
+                    <!-- Track de Imagens -->
+                    <div id="carousel-track" class="carousel-track flex w-full h-[260px] xs:h-[330px] sm:h-[450px]">
+                        
+                        <!-- Slide 1 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto1.jpg" onerror="this.src='https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop'" alt="Foto 1" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto1.jpg" onerror="this.src='https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop'" alt="Foto 1" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 2 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto2.jpg" onerror="this.src='https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=800&auto=format&fit=crop'" alt="Foto 2" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto2.jpg" onerror="this.src='https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=800&auto=format&fit=crop'" alt="Foto 2" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 3 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto3.jpg" onerror="this.src='https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=800&auto=format&fit=crop'" alt="Foto 3" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto3.jpg" onerror="this.src='https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=800&auto=format&fit=crop'" alt="Foto 3" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 4 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto4.jpg" onerror="this.src='https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=800&auto=format&fit=crop'" alt="Foto 4" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto4.jpg" onerror="this.src='https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=800&auto=format&fit=crop'" alt="Foto 4" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 5 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto5.jpg" onerror="this.src='https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=800&auto=format&fit=crop'" alt="Foto 5" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto5.jpg" onerror="this.src='https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=800&auto=format&fit=crop'" alt="Foto 5" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 6 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto6.jpg" onerror="this.src='https://images.unsplash.com/photo-1494774157365-9e04c6720e47?q=80&w=800&auto=format&fit=crop'" alt="Foto 6" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto6.jpg" onerror="this.src='https://images.unsplash.com/photo-1494774157365-9e04c6720e47?q=80&w=800&auto=format&fit=crop'" alt="Foto 6" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 7 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto7.jpg" onerror="this.src='https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=80&w=800&auto=format&fit=crop'" alt="Foto 7" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto7.jpg" onerror="this.src='https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=80&w=800&auto=format&fit=crop'" alt="Foto 7" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 8 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto8.jpg" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'" alt="Foto 8" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto8.jpg" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'" alt="Foto 8" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 9 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto9.jpg" onerror="this.src='https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=800&auto=format&fit=crop'" alt="Foto 9" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto9.jpg" onerror="this.src='https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=800&auto=format&fit=crop'" alt="Foto 9" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                        <!-- Slide 10 -->
+                        <div class="min-w-full h-full relative flex-shrink-0 bg-black/5 overflow-hidden">
+                            <img src="foto10.jpg" onerror="this.src='https://images.unsplash.com/photo-1474552226712-ac0f0961a954?q=80&w=800&auto=format&fit=crop'" alt="Foto 10" class="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-105">
+                            <img src="foto10.jpg" onerror="this.src='https://images.unsplash.com/photo-1474552226712-ac0f0961a954?q=80&w=800&auto=format&fit=crop'" alt="Foto 10" class="relative w-full h-full object-contain z-10">
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 sm:p-4 text-white text-center text-xs sm:text-sm font-light z-20"></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Botões de Navegação com Alvo de Toque Adequado no Mobile -->
+                    <button onclick="prevSlide()" aria-label="Foto anterior" class="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-white/80 hover:bg-white active:bg-white text-rose-600 flex items-center justify-center shadow-lg transition-all transform hover:scale-110 active:scale-95 focus:outline-none z-30 touch-manipulation">
+                        <i class="fa-solid fa-chevron-left text-lg"></i>
+                    </button>
+                    <button onclick="nextSlide()" aria-label="Próxima foto" class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-white/80 hover:bg-white active:bg-white text-rose-600 flex items-center justify-center shadow-lg transition-all transform hover:scale-110 active:scale-95 focus:outline-none z-30 touch-manipulation">
+                        <i class="fa-solid fa-chevron-right text-lg"></i>
+                    </button>
+
+                    <!-- Indicadores/Pontos -->
+                    <div id="carousel-dots" class="absolute bottom-2 sm:bottom-3 inset-x-0 flex justify-center gap-1.5 sm:gap-2 z-30">
+                        <!-- Gerado via JS -->
+                    </div>
+                </div>
+
+                <!-- CAIXA DE TEXTO / CARTA DE AMOR -->
+                <div class="w-full max-w-2xl bg-amber-50/80 border border-amber-200/90 rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-inner mb-6 sm:mb-10 relative">
+                    <div class="absolute top-3 right-3 sm:top-4 sm:right-4 text-rose-300 text-2xl sm:text-3xl opacity-50">
+                        <i class="fa-solid fa-quote-right"></i>
+                    </div>
+                    <label class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 mb-2">
+                        <i class="fa-solid fa-pen-nib mr-1"></i> Mensagem do Coração
+                    </label>
+                    <textarea id="texto-personalizado" rows="11" class="w-full bg-transparent border-none text-gray-700 focus:outline-none focus:ring-0 resize-y font-romantic leading-snug sm:leading-relaxed text-lg xs:text-xl sm:text-2xl" placeholder="Escreva seu texto aqui...">Quatro anos podem parecer bastante tempo para o mundo, mas para mim são apenas o começo de uma vida inteira que quero construir ao seu lado. Sei, com toda a certeza do meu coração, que tudo o que vivemos até aqui é só o primeiro capítulo da nossa linda história. 
+
+Ela começou assim, com um pedido simples e despretensioso, mas desde aquele primeiro momento nós dois já sabíamos exatamente o que tínhamos e o que queríamos construir juntos. A nossa certeza sempre foi maior do que qualquer dúvida.
+
+A cada dia que passa, cada pequeno gesto seu — um carinho inesperado, um cuidado carinhoso no olhar, um abraço no momento certo — me reafirma que você é a mulher da minha vida. É você quem eu escolho hoje, quem eu vou escolher amanhã e em todos os dias que o futuro nos reservar.
+
+Há quem diga por aí que o tempo esfria o amor ou que a rotina apaga a chama, mas tenho absoluta certeza de que quem pensa assim nunca sentiu o quão acolhedor e quente é o nosso abraço. O nosso amor não esfria; ele amadurece, ganha raízes e se renova a cada amanhecer.
+
+Você tem um coração gigante, nobre e ilumina tudo ao seu redor. Ver a sua evolução, a sua força e a sua essência me enche de um orgulho que não cabe no peito. Me sinto verdadeiramente honrado e abençoado por ter sido o escolhido por uma mulher tão extraordinária quanto você. É por isso que faço questão de tentar superar suas expectativas todos os dias, porque você merece receber o melhor de mim e do mundo.
+
+Eu te amo muito mais do que qualquer palavra, texto ou homenagem consiga expressar. Obrigado por ser exatamente quem você é, por me acolher com tanto carinho, por me permitir te amar e te cuidar, e, acima de tudo, por escolher caminhar lado a lado comigo todos os dias. Que venham os próximos anos, as próximas conquistas e uma vida inteira de felicidade ao seu lado. ❤️</textarea>
+                    <div class="text-right text-xs text-gray-400 mt-1">
+                        <i class="fa-solid fa-heart text-rose-400"></i>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO / RODAPÉ FINAL -->
+                <div class="w-full max-w-2xl text-center pt-4 sm:pt-6 border-t border-rose-200">
+                    <h2 class="font-romantic text-3xl xs:text-4xl sm:text-5xl font-bold text-rose-600 drop-shadow-sm mb-2">
+                        Foi assim que começou nossa história
+                    </h2>
+                    <p class="text-rose-500 text-xs sm:text-sm font-medium tracking-wider sm:tracking-widest uppercase mt-2">
+                        E este é apenas o começo do nosso para sempre ❤️
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPTS INTERATIVOS -->
+    <script>
+        /* ============================================================
+           0. EXECUÇÃO DO ÁUDIO LOCAL
+           ============================================================ */
+        function playMusic() {
+            const music = document.getElementById('bg-music');
+            if (music) {
+                music.play().catch(function(error) {
+                    console.log("Erro na reprodução do áudio (política de autoplay):", error);
+                });
+            }
+        }
+
+        /* ============================================================
+           1. ANIMAÇÃO DE CORAÇÕES FLUTUANTES NO FUNDO
+           ============================================================ */
+        function createHeart() {
+            const container = document.getElementById('hearts-container');
+            if (!container) return;
+            const heart = document.createElement('div');
+            heart.classList.add('heart-bg');
+            
+            const icons = ['fa-heart', 'fa-heart', 'fa-hand-holding-heart', 'fa-sparkles'];
+            const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+            
+            heart.innerHTML = '<i class="fa-solid ' + randomIcon + '"></i>';
+            
+            const left = Math.random() * 100;
+            const size = Math.random() * 16 + 10;
+            const duration = Math.random() * 5 + 5;
+            
+            heart.style.left = left + 'vw';
+            heart.style.fontSize = size + 'px';
+            heart.style.animationDuration = duration + 's';
+            
+            container.appendChild(heart);
+            
+            setTimeout(function() {
+                heart.remove();
+            }, duration * 1000);
+        }
+
+        setInterval(createHeart, 450);
+
+        /* ============================================================
+           2. LÓGICA DO BOTÃO "NÃO" FUJÃO (COM DOCKING / LIMITES MOBILE)
+           ============================================================ */
+        let naoEscapou = false;
+
+        function fugirBotao(e) {
+            if (e && e.preventDefault) {
+                e.preventDefault();
+            }
+
+            const btnNao = document.getElementById('btn-nao');
+            if (!btnNao) return;
+
+            if (!naoEscapou) {
+                btnNao.style.position = 'fixed';
+                naoEscapou = true;
+            }
+
+            // Dimensões seguras da viewport para evitar extrapolar a tela no Mobile
+            const padding = 20;
+            const btnWidth = btnNao.offsetWidth || 100;
+            const btnHeight = btnNao.offsetHeight || 50;
+
+            const maxLeft = window.innerWidth - btnWidth - padding;
+            const maxTop = window.innerHeight - btnHeight - padding;
+
+            const newLeft = Math.max(padding, Math.floor(Math.random() * maxLeft));
+            const newTop = Math.max(padding, Math.floor(Math.random() * maxTop));
+
+            btnNao.style.left = newLeft + 'px';
+            btnNao.style.top = newTop + 'px';
+        }
+
+        /* ============================================================
+           3. TRANSIÇÃO DA TELA 1 PARA A TELA 2 + TOCA MÚSICA
+           ============================================================ */
+        function goToSecondScreen() {
+            playMusic();
+
+            const screen1 = document.getElementById('screen-pedido');
+            const screen2 = document.getElementById('screen-historia');
+
+            screen1.classList.remove('opacity-100');
+            screen1.classList.add('opacity-0');
+
+            setTimeout(function() {
+                screen1.classList.add('hidden');
+                
+                screen2.classList.remove('hidden');
+                screen2.classList.add('flex');
+                setTimeout(function() {
+                    screen2.classList.remove('opacity-0');
+                    screen2.classList.add('opacity-100');
+                }, 50);
+
+                initCarousel();
+            }, 500);
+        }
+
+        /* ============================================================
+           4. LÓGICA DO CARROSSEL DE FOTOS & TOUCH SWIPE
+           ============================================================ */
+        let currentSlide = 0;
+        const totalSlides = 10;
+        let autoSlideInterval;
+
+        function initCarousel() {
+            const dotsContainer = document.getElementById('carousel-dots');
+            if (!dotsContainer) return;
+
+            dotsContainer.innerHTML = '';
+
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.ariaLabel = 'Ir para foto ' + (i + 1);
+                dot.className = 'w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 bg-white/50 hover:bg-white';
+                if (i === 0) dot.className = 'w-5 sm:w-6 h-2.5 sm:h-3 rounded-full transition-all duration-300 bg-rose-600';
+                
+                (function(index) {
+                    dot.addEventListener('click', function() { goToSlide(index); });
+                })(i);
+
+                dotsContainer.appendChild(dot);
+            }
+
+            // Suporte a gestos de deslizar (swipe) no mobile
+            setupCarouselTouch();
+            startAutoSlide();
+        }
+
+        function updateCarousel() {
+            const track = document.getElementById('carousel-track');
+            if (track) {
+                track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+            }
+
+            const dots = document.getElementById('carousel-dots') ? document.getElementById('carousel-dots').children : [];
+            for (let i = 0; i < dots.length; i++) {
+                if (i === currentSlide) {
+                    dots[i].className = 'w-5 sm:w-6 h-2.5 sm:h-3 rounded-full transition-all duration-300 bg-rose-600';
+                } else {
+                    dots[i].className = 'w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 bg-white/50 hover:bg-white';
+                }
+            }
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel();
+            resetAutoSlide();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+            resetAutoSlide();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+            resetAutoSlide();
+        }
+
+        function startAutoSlide() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(function() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateCarousel();
+            }, 4000);
+        }
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+
+        /* Suporte a toque/deslize no mobile */
+        function setupCarouselTouch() {
+            const track = document.getElementById('carousel-track');
+            if (!track) return;
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            track.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            track.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+
+            function handleSwipe() {
+                const swipeThreshold = 40;
+                if (touchStartX - touchEndX > swipeThreshold) {
+                    nextSlide();
+                } else if (touchEndX - touchStartX > swipeThreshold) {
+                    prevSlide();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
